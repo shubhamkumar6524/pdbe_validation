@@ -1,0 +1,59 @@
+build:
+  major: 2025
+  minor: 05
+  revision: 21
+  versionStrategy: semver
+  cmdbId: A1809265-S2
+  buildDir: .
+  skipTestModule: true
+  skipPipInstall: true
+  #skipTestIntegration: true
+  #days ToKeep: 14
+  #numToKeep: 10
+
+# Optional build configuration
+  #buildDir: 'dir name'
+  #skipTestModule: true
+  #skipTestIntegration: true
+  #daysToKeep: 14
+  #numToKeep: 10
+
+#artifactory:
+  #groupPath:
+  #artifactName:
+  #artifactoryPath:
+  #directoryToUpload:
+
+publishForBranches: '^(master|main|develop|develop-new)$'
+
+# The container section is used for building Docker images. The entire section can be commented out if your application does not build a Docker image.
+container:
+  name: pdbe-validation
+  artifactoryPath: 'xyz'
+  imageTagWithBuildVersion: true
+  helmPublishRepo: xyz-helm-dev
+  artifactoryBuildRepository: xyz-docker-dev
+
+triggers:
+  electricFlowDeploymentForBranches: '^master$|^main$|^develop|^develop-new$'
+  # deploymentForBranches: '^master$|^main$'
+  # endToEndTestForBranches: '^master$|^main$'
+
+electricFlow:
+  - projectName: foundation-ai
+    pipelineName: A1809265-S2_pdbe-validation-backend_OpenShift-BG
+    parameters:
+    - name: "AppName"
+      value: pdbe-validation-backend
+    - name: "ArtifactID"
+      value: pdbe-validation-backend
+    - name: "ArtifactoryGroupId"
+      value: 'org.pdbe-validation-backend'
+    - name: "ArtifactoryRepoName"
+      value: xyz-maven-dev
+    - name: "OCNameSpace"
+      value: xyz
+    - name: "STEnvironment"
+      value: st2
+    - name: "ProjectId"
+      value: TFS2025STANDALONE

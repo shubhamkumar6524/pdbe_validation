@@ -1,0 +1,4 @@
+Here is the full ServiceMax payload (JSON):
+{input}
+
+Please answer Aspect 2 accordingly.

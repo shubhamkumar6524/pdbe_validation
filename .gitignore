@@ -1,0 +1,30 @@
+.terraform/
+*.tfstate*
+
+dependencies/
+
+.venv/
+__pycache__/
+
+*.pyc
+
+Data/*
+
+/ **/.idea/*
+
+.env
+
+test_notebook.ipynb
+db_onboarding 1.ipynb
+
+*/ **/__pycache__
+
+venv/
+
+myenv
+
+.myenv
+
+/myenv
+
+collection-delete.py
