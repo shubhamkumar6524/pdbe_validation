@@ -46,18 +46,40 @@ def register_routes(app: FastAPI):
     register_audit_routes(app)          # /api/pdbe/audit
 
 
+# class CustomRoute(APIRoute):
+#     def get_route_handler(self):
+#         original_route = super().get_route_handler()
+#         async def audited_route(request: Request):
+#             start_time = time()
+#             response = await original_route(request)
+#             if settings.is_audit_enabled():
+#                 try:
+#                     asyncio.create_task(AuditService().audit(request=request, response=response))
+#                 except Exception as e:
+#                     logger.error(f"[CustomRoute] Error scheduling audit: {e}")
+#             end_time = time()
+#             logger.info(f"Processed {request.method} {request.url.path} in {(end_time - start_time):.3f}s")
+#             return response
+#         return audited_route
+
+
 class CustomRoute(APIRoute):
     def get_route_handler(self):
-        original_route = super().get_route_handler()
-        async def audited_route(request: Request):
+        app = super().get_route_handler()
+        return self.proxy_route(app)
+
+    @staticmethod
+    def proxy_route(route_function):
+        async def route(request):
             start_time = time()
-            response = await original_route(request)
+            audit_start_time, audit_end_time = None, None
+            response = await route_function(request)
             if settings.is_audit_enabled():
-                try:
-                    asyncio.create_task(AuditService().audit(request=request, response=response))
-                except Exception as e:
-                    logger.error(f"[CustomRoute] Error scheduling audit: {e}")
+                audit_start_time = time()
+                await AuditService().audit(request=request, response=response)
+                audit_end_time = time()
             end_time = time()
-            logger.info(f"Processed {request.method} {request.url.path} in {(end_time - start_time):.3f}s")
+            logger.info(f"Processing time. Path: {request.url.path}, Overall: {end_time - start_time}" + f", Audit Time: {audit_end_time - audit_start_time}" if audit_start_time and audit_end_time else "")
             return response
-        return audited_route
+
+        return route
