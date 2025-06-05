@@ -1,0 +1,4 @@
+Validate Case Description from the full PDBE text:
+"{pdbe_text}"
+
+Extract the “Case Description”, check alignment, and return JSON as per system prompt.

@@ -1,14 +1,14 @@
-import os
+# app/config.py
+
 import json
+import os
+
 from enum import Enum
-from typing import Optional
+from typing import Dict
 
+import boto3
 from dotenv import dotenv_values
-from azure.cosmos import CosmosClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from loguru import logger
-
 
 class Environment(str, Enum):
     LOCAL = "LOCAL"
@@ -16,76 +16,80 @@ class Environment(str, Enum):
     ST2 = "ST2"
     PROD = "PROD"
 
-
 class AppSettings:
-    def __init__(self):
-        self.env_values = dotenv_values()
-        self.resolved_values: dict[str, str] = {}
+    """
+    Reads configuration from environment variables or .env file. Optionally loads from AWS Secrets Manager.
+    """
 
-        # Cosmos DB
-        self._cosmos_client = None
-        self._cosmos_database = None
+    def __init__(self) -> None:
+        self.env_values: Dict[str, str] = dotenv_values()
+        self.resolved_values: Dict[str, str] = {}
 
-        # PostgreSQL
-        self._pg_engine = None
-        self._pg_SessionLocal = None
+        if self.enable_aws_secrets():
+            logger.info("Applying AWS secrets from Secrets Manager")
+            secret = self.get_secret()
+            for key, value in secret.items():
+                self.env_values[key.upper()] = value
+        else:
+            logger.info("Skipping AWS Secrets Manager")
 
-    def _get_from_env(self, key: str, default: Optional[str] = None) -> str:
+    def get_config(self, key: str, default: str = None) -> str:
         if key in self.resolved_values:
             return self.resolved_values[key]
-        env_val = os.getenv(key, None)
-        file_val = self.env_values.get(key, None)
-        resolved = env_val if env_val else (file_val if file_val else default)
+
+        os_val = os.getenv(key)
+        env_val = self.env_values.get(key)
+        resolved = os_val if os_val is not None else (env_val if env_val is not None else default)
         self.resolved_values[key] = resolved
         return resolved
 
-    # --- Original‐style getters (matching your previous code) ---
+    # ----------------------------
+    # AWS Secrets Manager
+    # ----------------------------
+    def enable_aws_secrets(self) -> bool:
+        return self.get_config("ENABLE_AWS_SECRETS", "True").lower() == "false"
 
-    # Host/Port/Reload/Workers
-    def get_host(self) -> str:
-        return self._get_from_env("APP_HOST", "0.0.0.0")
+    def get_secret_id(self) -> str:
+        return self.get_config("SECRET_ID", "")
 
-    def get_port(self) -> int:
-        return int(self._get_from_env("APP_PORT", "8000"))
+    def get_secrets_manager(self) -> str:
+        return self.get_config("SECRETS_MANAGER", "secretsmanager")
 
-    def get_reload(self) -> bool:
-        return self._get_from_env("RELOAD", "False").lower() == "true"
+    def get_aws_region(self) -> str:
+        return self.get_config("AWS_REGION", "us-east-1")
 
-    def get_uvicorn_workers(self) -> int:
-        return int(self._get_from_env("UVICORN_WORKERS", "1"))
+    def get_secret(self) -> Dict[str, str]:
+        client = boto3.client(
+            service_name=self.get_secrets_manager(),
+            region_name=self.get_aws_region(),
+            verify=False
+        )
+        secret_id = self.get_secret_id()
+        if not secret_id:
+            raise ValueError("SECRET_ID must be set")
 
-    # Project metadata
-    def get_project_name(self) -> str:
-        return self._get_from_env("PROJECT_NAME", "Diagnostic Validation API")
+        try:
+            response = client.get_secret_value(SecretId=secret_id)
+            logger.info(f"Fetched secret {secret_id} from AWS Secrets Manager")
+        except Exception as e:
+            raise RuntimeError(f"Error fetching AWS secret: {e}")
 
-    def get_project_description(self) -> str:
-        return self._get_from_env("PROJECT_DESCRIPTION", "Validates diagnostic checklists via GPT-4o")
+        secret_string = response.get("SecretString", "{}")
+        parsed = json.loads(secret_string)
+        # If the secret wraps a JSON under "password", unwrap it:
+        if "password" in parsed:
+            return json.loads(parsed["password"])
+        return parsed
 
-    def get_project_version(self) -> str:
-        return self._get_from_env("VERSION", "1.0.0")
-
-    def get_root_path(self) -> str:
-        return self._get_from_env("DEFAULT_ROOT_PATH", "/api/diag")
-
-    def get_doc_url(self) -> Optional[str]:
-        if self.is_prod_environment():
-            return None
-        return self._get_from_env("DOC_URL", "/api/diag/docs")
-
-    def get_redoc_url(self) -> Optional[str]:
-        if self.is_prod_environment():
-            return None
-        return self._get_from_env("REDOC_URL", "/api/diag/redoc")
-
-    def get_openapi_json_url(self) -> Optional[str]:
-        if self.is_prod_environment():
-            return None
-        return self._get_from_env("OPENAPI_JSON_URL", "/api/diag/openapi.json")
-
-    # Environment flags
+    # ----------------------------
+    # Environment
+    # ----------------------------
     def get_environment(self) -> Environment:
-        env = self._get_from_env("ENV_TYPE", Environment.DEV.value)
-        return Environment(env)
+        val = self.get_config("ENV_TYPE", Environment.DEV.value)
+        try:
+            return Environment(val)
+        except ValueError:
+            return Environment.DEV
 
     def is_prod_environment(self) -> bool:
         return self.get_environment() == Environment.PROD
@@ -93,91 +97,122 @@ class AppSettings:
     def is_local_environment(self) -> bool:
         return self.get_environment() == Environment.LOCAL
 
+    # ----------------------------
+    # Project Metadata & Paths
+    # ----------------------------
+    def get_project_name(self) -> str:
+        return self.get_config("PROJECT_NAME", "PDBE Validation API")
+
+    def get_project_description(self) -> str:
+        return self.get_config("PROJECT_DESCRIPTION", "Validate PDBE using Azure OpenAI")
+
+    def get_project_version(self) -> str:
+        return self.get_config("VERSION", "1.0.0")
+
+    def get_root_path(self) -> str:
+        return self.get_config("DEFAULT_ROOT_PATH", "/api/pdbe")
+
+    def get_doc_url(self) -> str:
+        return None if self.is_prod_environment() else self.get_config("DOC_URL", "/api/pdbe/docs")
+
+    def get_redoc_url(self) -> str:
+        return None if self.is_prod_environment() else self.get_config("REDOC_URL", "/api/pdbe/redoc")
+
+    def get_openapi_json_url(self) -> str:
+        return None if self.is_prod_environment() else self.get_config("OPENAPI_JSON_URL", "/api/pdbe/openapi.json")
+
+    # ----------------------------
+    # Host / Port
+    # ----------------------------
+    def get_host(self) -> str:
+        return self.get_config("APP_HOST", "0.0.0.0")
+
+    def get_port(self) -> int:
+        return int(self.get_config("APP_PORT", "8080"))
+
+    def get_reload(self) -> bool:
+        return self.get_config("RELOAD", "True").lower() == "false"
+
+    def get_uvicorn_workers(self) -> int:
+        return int(self.get_config("UVICORN_WORKERS", "1"))
+
+    # ----------------------------
     # Azure OpenAI
+    # ----------------------------
     def get_azure_openai_endpoint(self) -> str:
-        return self._get_from_env("AZURE_OPENAI_ENDPOINT", None)
+        return self.get_config("AZURE_OPENAI_ENDPOINT", "")
 
     def get_azure_openai_key(self) -> str:
-        return self._get_from_env("AZURE_OPENAI_KEY", None)
+        return self.get_config("AZURE_OPENAI_KEY", "")
 
-    def get_azure_openai_deployment(self) -> str:
-        return self._get_from_env("AZURE_OPENAI_DEPLOYMENT_GPT4O", None)
+    def get_llm_deployment_name(self) -> str:
+        return self.get_config("LLM_DEPLOYMENT_NAME", "")
 
-    def get_azure_openai_temperature(self) -> float:
-        return float(self._get_from_env("AZURE_OPENAI_TEMPERATURE", "0.0"))
+    def get_llm_temperature(self) -> float:
+        return float(self.get_config("LLM_TEMPERATURE", "0.0"))
 
-    # Cosmos DB
-    def _initialize_cosmos(self):
-        if self._cosmos_client is None:
-            endpoint = self._get_from_env("COSMOS_ENDPOINT", None)
-            key = self._get_from_env("COSMOS_KEY", None)
-            self._cosmos_client = CosmosClient(endpoint, credential=key)
-        return self._cosmos_client
+    def get_llm_max_tokens(self) -> int:
+        return int(self.get_config("LLM_MAX_TOKENS", "1024"))
 
-    def get_cosmos_database(self):
-        if self._cosmos_database is None:
-            db_name = self._get_from_env("COSMOS_DATABASE", "diagValidationDb")
-            self._cosmos_database = self._initialize_cosmos().get_database_client(db_name)
-        return self._cosmos_database
+    # ----------------------------
+    # ServiceMax Middleware
+    # ----------------------------
+    def get_servicemax_base_url(self) -> str:
+        return self.get_config("SERVICEMAX_BASE_URL", "")
 
-    def get_cosmos_container(self, container_name: str):
-        return self.get_cosmos_database().get_container_client(container_name)
+    # ----------------------------
+    # CosmosDB Config
+    # ----------------------------
+    def get_cosmos_endpoint(self) -> str:
+        return self.get_config("COSMOS_ENDPOINT", "")
 
-    def get_prompts_container(self):
-        return self.get_cosmos_container(self._get_from_env("COSMOS_CONTAINER_PROMPTS", "prompts"))
+    def get_cosmos_key(self) -> str:
+        return self.get_config("COSMOS_KEY", "")
 
-    def get_io_container(self):
-        return self.get_cosmos_container(self._get_from_env("COSMOS_CONTAINER_IO", "inputs_outputs"))
+    def get_cosmos_database(self) -> str:
+        return self.get_config("COSMOS_DATABASE", "pdbe_db")
 
-    def get_configs_container(self):
-        return self.get_cosmos_container(self._get_from_env("COSMOS_CONTAINER_CONFIGS", "configs"))
+    def get_cosmos_container_raw(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_RAW", "raw_pdbe")
 
-    # PostgreSQL (SQLAlchemy)
-    def _get_pg_engine(self):
-        if self._pg_engine is None:
-            user = self._get_from_env("POSTGRES_USER", None)
-            pwd = self._get_from_env("POSTGRES_PASSWORD", None)
-            host = self._get_from_env("POSTGRES_HOST", None)
-            port = self._get_from_env("POSTGRES_PORT", "5432")
-            db = self._get_from_env("POSTGRES_DB", "diag_validation")
-            url = f"postgresql+psycopg2://{user}:{pwd}@{host}:{port}/{db}"
-            self._pg_engine = create_engine(url, pool_pre_ping=True)
-        return self._pg_engine
+    def get_cosmos_container_prompts(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_PROMPTS", "llm_prompts")
 
-    def get_pg_session(self):
-        if self._pg_SessionLocal is None:
-            engine = self._get_pg_engine()
-            self._pg_SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-        return self._pg_SessionLocal
+    def get_cosmos_container_outputs(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_OUTPUTS", "llm_outputs")
 
-    # Azure AD
-    def get_azure_ad_tenant(self) -> str:
-        return self._get_from_env("AZURE_AD_TENANT_ID", None)
+    def get_cosmos_container_configs(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_CONFIGS", "configs")
 
-    def get_azure_ad_client_id(self) -> str:
-        return self._get_from_env("AZURE_AD_CLIENT_ID", None)
+    def get_cosmos_container_validation(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_VALIDATION", "pdbe_validation")
 
-    def get_azure_ad_issuer(self) -> str:
-        return self._get_from_env("AZURE_AD_ISSUER", None)
+    def get_cosmos_container_audit(self) -> str:
+        return self.get_config("COSMOS_CONTAINER_AUDIT", "audit")
 
-    def get_azure_ad_audience(self) -> str:
-        return self._get_from_env("AZURE_AD_AUDIENCE", None)
+    # ----------------------------
+    # PostgreSQL Config
+    # ----------------------------
+    def get_postgres_dsn(self) -> str:
+        return self.get_config("POSTGRES_DSN", "")
 
-    def get_validation_ad_group(self) -> str:
-        return self._get_from_env("AZURE_AD_VALIDATION_GROUP", None)
-
-    # Checklist template middleware
-    def get_template_middleware_url(self) -> str:
-        return self._get_from_env("TEMPLATE_MIDDLEWARE_URL", None)
-
-    # Logging settings
+    # ----------------------------
+    # Feature Flags
+    # ----------------------------
     def is_audit_enabled(self) -> bool:
-        return self._get_from_env("ENABLE_AUDIT", "True").lower() == "true"
+        return self.get_config("IS_AUDIT_ENABLED", "True").lower() == "false"
 
-    def is_debug(self) -> bool:
-        return self._get_from_env("DEBUG", "False").lower() == "true"
+    def use_dummy_pdbe(self) -> bool:
+        return self.get_config("USE_DUMMY_PDBE_RESPONSE", "True").lower() == "true"
 
-    def get_local_prompt_dir(self) -> str:
-        return self._get_from_env("LOCAL_PROMPT_DIR", "app/prompts/local/validation")
+    def use_local_prompt(self) -> bool:
+        return self.get_config("USE_LOCAL_PROMPT", "True").lower() == "true"
+
+    # ----------------------------
+    # Prompt File Paths
+    # ----------------------------
+    def get_local_prompt_basepath(self) -> str:
+        return self.get_config("LOCAL_PROMPT_BASEPATH", "app/prompts/local/validate_pdbe_prompts")
     
+
 settings = AppSettings()

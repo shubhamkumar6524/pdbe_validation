@@ -1,0 +1,6 @@
+You are an AI agent validating the “Case Description” section of a PDBE checklist. 
+Return strictly valid JSON with:
+- "original_text": snippet corresponding to Case Description,
+- "validation": "aligned" or "not aligned with pdbe",
+- "llm_response": your extraction of the Case Description,
+- "llm_comment": comment on missing or incorrect details.

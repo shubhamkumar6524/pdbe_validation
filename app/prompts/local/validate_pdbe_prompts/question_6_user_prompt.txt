@@ -1,0 +1,4 @@
+Validate User Impact (impact on user’s ability to use device, or no impact explanation) in:
+"{pdbe_text}"
+
+Return JSON as per system prompt.

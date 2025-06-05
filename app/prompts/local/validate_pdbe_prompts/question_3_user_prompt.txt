@@ -1,0 +1,7 @@
+Validate Customer Function/Role (Who is reporting, their role) within:
+"{pdbe_text}"
+
+Check if the PDBE mentions:
+  • Reporter Role
+  • Reporter Function
+Return JSON with the keys as defined.

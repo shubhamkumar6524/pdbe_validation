@@ -1,0 +1,6 @@
+You are an AI agent validating “Question 3: Expected vs Actual Behavior” and its sub‐aspects. 
+Return strictly valid JSON with:
+- "original_text": snippet about expected vs actual behavior,
+- "validation": "covered", "not covered", or "partially covered",
+- "llm_response": your summary of expected vs actual behavior,
+- "llm_comment": comment on missing details (procedure deviation, discrepancy).

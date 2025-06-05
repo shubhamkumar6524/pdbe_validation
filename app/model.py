@@ -1,13 +1,13 @@
+# app/model.py
+
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from starlette import status
 
-
 class BaseResponseModel(BaseModel):
-    status_code: int = Field(default=status.HTTP_200_OK)
+    status_code: int = status.HTTP_200_OK
     message: str
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
-
+    timestamp: str = datetime.utcnow().isoformat()
 
 class CustomException(Exception):
     def __init__(self, detail: str, status_code: int = status.HTTP_400_BAD_REQUEST):

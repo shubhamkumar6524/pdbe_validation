@@ -1,55 +1,48 @@
-from fastapi import APIRouter, Depends, Query
-from typing import List
-from sqlalchemy.orm import Session
+# app/audit/controller.py
 
-from app.shared.authentication import AzureBearerAuthentication
-from app.config import settings
-from app.model import CustomException
-from .models_db import AuditLog
-from .service import AuditService
+from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi.responses import JSONResponse
+import json
+from loguru import logger
+
+from app.audit.service import AuditService
+from app.model import BaseResponseModel
 
 router = APIRouter()
 
-# Dependency to get a DB session (for querying logs)
-def get_db():
-    db = settings.get_pg_session()()
-    try:
-        yield db
-    finally:
-        db.close()
+@router.get("", response_model=BaseResponseModel, tags=["Audit"])
+async def health_check():
+    return BaseResponseModel(message="Audit service is up")
 
+@router.post("/manual", response_model=BaseResponseModel, tags=["Audit"])
+async def manual_audit_trigger(data: dict, audit_svc: AuditService = Depends()):
+    endpoint = data.get("endpoint")
+    if not endpoint:
+        raise HTTPException(status_code=400, detail="Missing endpoint for manual audit")
+    req_b = data.get("request_body", {})
+    res_b = data.get("response_body", {})
+    created_by = data.get("created_by", None)
 
-@router.get(
-    "/logs",
-    tags=["Audit"],
-    summary="Fetch audit logs (paginated)",
-    dependencies=[Depends(AzureBearerAuthentication())],
-)
-def get_audit_logs(
-    offset: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=200),
-    db: Session = Depends(get_db),
-):
-    """
-    Returns a paginated list of audit logs, ordered by timestamp descending.
-    """
-    try:
-        query = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).offset(offset).limit(limit)
-        logs = query.all()
-        result = []
-        for log in logs:
-            result.append(
-                {
-                    "id": log.id,
-                    "username": log.username,
-                    "path": log.path,
-                    "method": log.method,
-                    "request_body": log.request_body,
-                    "response_body": log.response_body,
-                    "status_code": log.status_code,
-                    "timestamp": log.timestamp.isoformat(),
-                }
-            )
-        return {"logs": result, "offset": offset, "limit": limit}
-    except Exception as e:
-        raise CustomException(f"Failed to fetch audit logs: {e}")
+    class DummyReq:
+        def __init__(self, path, body):
+            self.url = type("U", (), {"path": path})
+            self.method = "POST"
+            self._body = json.dumps(body).encode("utf-8")
+            self.query_params = {}
+            self.state = type("S", (), {"user": None})
+
+        async def json(self):
+            return req_b
+
+        async def body(self):
+            return self._body
+
+    class DummyRes:
+        def __init__(self, body, status_code):
+            self.body = json.dumps(body).encode("utf-8")
+            self.status_code = status_code
+
+    dummy_req = DummyReq(endpoint, req_b)
+    dummy_res = DummyRes(res_b, 200)
+    await audit_svc.audit(dummy_req, dummy_res)
+    return BaseResponseModel(message="Manual audit triggered")

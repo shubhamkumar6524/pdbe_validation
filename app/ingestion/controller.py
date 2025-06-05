@@ -1,31 +1,25 @@
-from fastapi import APIRouter, Body
-from app.ingestion.model import IngestionInput, DocumentUploadResponse, FetchDocumentsResponse
+# app/ingestion/controller.py
+
+from fastapi import APIRouter, HTTPException, Depends
+from loguru import logger
+
+from app.ingestion.model import PDBEIngestInput, PromptSetInput
 from app.ingestion.service import IngestionService
+from app.model import BaseResponseModel
 
 router = APIRouter()
-service = IngestionService()
 
+@router.post("/pdbe", response_model=BaseResponseModel, tags=["Ingestion"])
+async def ingest_pdbe(data: PDBEIngestInput, svc: IngestionService = Depends()):
+    success = await svc.ingest_pdbe(case_id=data.case_id, pdbe_payload=data.pdbe)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to ingest PDBE")
+    return BaseResponseModel(message="PDBE ingested successfully")
 
-@router.post(
-    "/upload",
-    response_model=DocumentUploadResponse,
-    tags=["Ingestion"],
-    summary="Upload a ServiceMax JSON payload for a given case_id",
-)
-async def upload_document(request: IngestionInput = Body(...)):
-    """
-    Ingests a ServiceMax JSON payload under the provided case_id.
-    """
-    result = service.ingest_document(request.case_id, request.payload)
-    return DocumentUploadResponse(case_id=result["case_id"], upload_timestamp=result["timestamp"])
-
-
-@router.get(
-    "/{case_id}",
-    response_model=FetchDocumentsResponse,
-    tags=["Ingestion"],
-    summary="Fetch a document by case_id",
-)
-async def get_document(case_id: str):
-    doc = service.get_document(case_id)
-    return FetchDocumentsResponse(documents=[doc])
+@router.post("/prompts", response_model=BaseResponseModel, tags=["Ingestion"])
+async def ingest_prompts(data: PromptSetInput, svc: IngestionService = Depends()):
+    prompt_dict = data.dict(exclude={"created_by"})
+    success = await svc.ingest_prompts(prompt_dict, created_by=data.created_by)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to ingest prompts")
+    return BaseResponseModel(message="Prompts ingested successfully")

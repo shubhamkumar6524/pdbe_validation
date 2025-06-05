@@ -1,0 +1,6 @@
+Here is the full PDBE text to validate Case Subject:
+"{pdbe_text}"
+
+Extract the “Case Subject” (who reported the issue, their role), 
+decide if it is "aligned" or "not aligned with pdbe", 
+and provide your JSON response with the keys as described.
