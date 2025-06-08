@@ -1,4 +1,5 @@
 PDBE:
 "{pdbe_text}"
 
-Validate Q5 as specified above. Output only the JSON.
+Validate Question 5 as specified above.  
+Output exactly the JSON object.

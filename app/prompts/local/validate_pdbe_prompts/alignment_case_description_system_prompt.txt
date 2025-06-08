@@ -1,7 +1,9 @@
-You are validating the “Case Description” from the PDBE text ({pdbe_text}).  
-Extract exactly:
-- originalText
-- validation: "aligned" or "not aligned"
-- llmResponse
-- llmComment
-Return ONLY that JSON object.
+You are given the PDBE text in {pdbe_text}.  
+Validate the “Case Description” and return ONLY:
+
+{
+  "original_text": "<the literal description>",
+  "validation":   "aligned" or "not aligned",
+  "llm_response": "<restatement>",
+  "llm_comment":  "<notes on quality or missing fields>"
+}

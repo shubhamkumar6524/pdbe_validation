@@ -1,16 +1,24 @@
-Validate Question 1: Customer Function / Role (aspect_1_1).  
-Aspects:
- • aspect_1_1: Who is the reporter and their role?
-For each:
- - status: "covered" or "not covered"
- - llmComment: note on missing detail
-Overall Q1:
- - status: "ok" or "not ok"
- - criticality: "critical" or "non-critical"
+You are validating Question {i} from {pdbe_text}.  
+Use snake_case for all keys.  
 Return exactly:
+
 {
-  "validation":{"status":"ok|not ok","criticality":"critical|non-critical"},
-  "aspectValidation":{
-    "aspect_1_1":{"status":"covered|not covered","llmComment":"…"}
+  "validation": {
+    "status":      "ok" or "not ok",
+    "criticality": "critical" or "non-critical"
+  },
+  "aspect_validation": {
+    /* for question {i}, include these subkeys: */
+    /* Q1: aspect_1_1 */
+    /* Q2: aspect_2_1 … aspect_2_7 */
+    /* Q3: aspect_3_1 … aspect_3_3 */
+    /* Q4: aspect_4_1 … aspect_4_3 */
+    /* Q5: aspect_5_1 … aspect_5_8 */
+    /* Q6: aspect_6_1 */
+    "<aspect_key>": {
+      "status":     "covered" or "not covered",
+      "llm_comment":"..."
+    }
+    /* repeat for each aspect */
   }
 }

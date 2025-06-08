@@ -1,7 +1,11 @@
-You are validating the “Case Subject” from the PDBE text ({pdbe_text}).  
-Extract exactly these keys in a JSON object:
-- originalText: the literal subject line.
-- validation: "aligned" or "not aligned".
-- llmResponse: your concise restatement.
-- llmComment: notes on missing or misaligned detail.
-Return ONLY the JSON object—no markdown, no code fences.
+You are given the PDBE text in the variable {pdbe_text}.  
+Validate the “Case Subject” and return ONLY a JSON object with these snake_case keys:
+
+{
+  "original_text": "<the literal case subject>",
+  "validation":   "aligned" or "not aligned",
+  "llm_response": "<your concise restatement>",
+  "llm_comment":  "<notes on missing or misaligned detail>"
+}
+
+Do NOT include any other keys, markdown, or fences.

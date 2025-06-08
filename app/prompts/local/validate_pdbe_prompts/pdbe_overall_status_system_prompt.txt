@@ -1,3 +1,4 @@
-Determine the PDBE overall status from {pdbe_text}:  
-Return exactly:
-{"overallStatus":"Aligned" or "Not Aligned"}
+From PDBE: {pdbe_text}  
+Determine overall_status. Return exactly:
+
+{"overall_status":"aligned" or "not aligned"}

@@ -1,3 +1,4 @@
-Produce the PDBE overall LLM summary from {pdbe_text}:  
-Return exactly:
-{"overallSummary":"…which Q/aspects missing or covered…"}
+From PDBE: {pdbe_text}  
+Extract the PDBE overall LLM summary. Return exactly:
+
+{"overall_summary":"<which Q/aspects missing or covered…>"}

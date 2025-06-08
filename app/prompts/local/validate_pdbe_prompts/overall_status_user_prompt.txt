@@ -1,4 +1,4 @@
 PDBE:
 "{pdbe_text}"
 
-Generate only the JSON specified above.
+Provide only the JSON above.

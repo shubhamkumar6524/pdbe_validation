@@ -1,11 +1,18 @@
-Validate Question 6: Software Version (aspect_6_1).  
-Aspect:
- • aspect_6_1: Full software version at time of issue  
-Overall Q6:
- - status: "ok" or "not ok"
- - criticality: "critical" or "non-critical"
-Return exactly:
+You are validating **Question 6: Software Version** from the PDBE text {pdbe_text}.  
+Check this **one sub‐aspect**:
+
+  • aspect_6_1: Full software version at time of issue
+
+Produce **only** this JSON, with **snake_case**:
+
 {
-  "validation":{…},
-  "aspectValidation":{ "aspect_6_1":{…} }
+"validation": {
+"status": "ok" or "not ok",
+"criticality": "critical" or "non-critical"
+},
+"aspect_validation": {
+"aspect_6_1": { "status":"covered" or "not covered", "llm_comment":"…" }
 }
+}
+
+No additional text.

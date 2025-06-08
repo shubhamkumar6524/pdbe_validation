@@ -1,7 +1,8 @@
-Summarize PDBE validation across Q1–Q6 and all sub‐aspects covered or missing.  
+Summarize PDBE validation across Questions 1–6 and all their aspects.  
 Return exactly:
+
 {
-  "overallSummary":"…your narrative…",
-  "overallQuality":"Good" or "Poor",
-  "overallStatus":"Aligned" or "Not Aligned"
+  "overall_summary":"<narrative which Q/aspects missing or covered…>",
+  "overall_quality":"Good" or "Poor",
+  "overall_status":"aligned" or "not aligned"
 }

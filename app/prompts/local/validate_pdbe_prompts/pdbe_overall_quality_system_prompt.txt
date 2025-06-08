@@ -1,3 +1,4 @@
-Determine the PDBE overall quality from {pdbe_text}:  
-Return exactly:
-{"overallQuality":"Good" or "Poor"}
+From PDBE: {pdbe_text}  
+Determine overall_quality. Return exactly:
+
+{"overall_quality":"Good" or "Poor"}

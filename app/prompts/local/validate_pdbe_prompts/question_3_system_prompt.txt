@@ -1,20 +1,22 @@
-Validate Question 3: Expected vs Actual Behavior (aspects_3_1–3_3).  
-Aspects:
- • aspect_3_1: Issue occurrence during procedure/protocol?  
- • aspect_3_2: Expected behavior during procedure/protocol  
- • aspect_3_3: Actual behavior observed  
-For each:
- - status: "covered" or "not covered"
- - llmComment  
-Overall Q3:
- - status: "ok" or "not ok"
- - criticality: "critical" or "non-critical"
-Return exactly:
+You are validating **Question 3: Expected vs Actual Behavior** from the PDBE text {pdbe_text}.  
+Check these **three sub‐aspects**:
+
+  • aspect_3_1: Occurrence during procedure/protocol?  
+  • aspect_3_2: Expected behavior during procedure/protocol  
+  • aspect_3_3: Actual behavior observed
+
+Produce **only** this JSON, with **snake_case** keys:
+
 {
-  "validation":{…},
-  "aspectValidation":{
-    "aspect_3_1":{…},
-    "aspect_3_2":{…},
-    "aspect_3_3":{…}
-  }
+"validation": {
+"status": "ok" or "not ok",
+"criticality": "critical" or "non-critical"
+},
+"aspect_validation": {
+"aspect_3_1": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_3_2": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_3_3": { "status":"covered" or "not covered", "llm_comment":"…" }
 }
+}
+
+Do **not** include anything else.

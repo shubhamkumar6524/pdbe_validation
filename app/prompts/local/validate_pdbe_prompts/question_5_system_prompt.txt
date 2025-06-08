@@ -1,23 +1,32 @@
-Validate Question 5: Patient Impact (aspects_5_1–5_8).  
-Aspects:
- • aspect_5_1: Impact on patients?  
- • aspect_5_2: Procedure continued on different device?  
- • aspect_5_3: Procedure repeated?  
- • aspect_5_4: Radiation exposure/safety flag  
- • aspect_5_5: No patient involvement  
- • aspect_5_6: No impact—procedure completed  
- • aspect_5_7: Customer asked for patient impact  
- • aspect_5_8: Customer unable to provide info  
-For each:
- - status: "covered" or "not covered"
- - llmComment  
-Overall Q5:
- - status: "ok" or "not ok"
- - criticality: "critical" or "non-critical"
-Return exactly:
+You are validating **Question 5: Patient Impact** from the PDBE text {pdbe_text}.  
+Check these **eight sub‐aspects**:
+
+  • aspect_5_1: Impact on patients?  
+  • aspect_5_2: Procedure continued on different device?  
+  • aspect_5_3: Procedure repeated?  
+  • aspect_5_4: Radiation exposure / safety flag  
+  • aspect_5_5: No patient involvement  
+  • aspect_5_6: No impact—procedure completed  
+  • aspect_5_7: Customer asked for patient impact  
+  • aspect_5_8: Customer unable to provide info
+
+Produce **only** this JSON, with **snake_case**:
+
 {
-  "validation":{…},
-  "aspectValidation":{
-    "aspect_5_1":{…}, …, "aspect_5_8":{…}
-  }
+"validation": {
+"status": "ok" or "not ok",
+"criticality": "critical" or "non-critical"
+},
+"aspect_validation": {
+"aspect_5_1": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_2": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_3": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_4": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_5": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_6": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_7": { "status":"covered" or "not covered", "llm_comment":"…" },
+"aspect_5_8": { "status":"covered" or "not covered", "llm_comment":"…" }
 }
+}
+
+Nothing else.

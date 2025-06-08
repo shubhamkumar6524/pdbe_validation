@@ -1,14 +1,9 @@
-Extract PSA flag info from {pdbe_text}:  
-- psaFlagValidation: true if “PSA flag” or “radioactive” mentioned  
-- psaFlagDescription: sentence(s) describing impact  
-- clinical: true if device in clinical use  
-- uniqueRunId: "workorder_activity_<case_id>_1"  
-- attachmentPresent: true if “attachment” mentioned  
-Return exactly:
+Extract PSA flag info from {pdbe_text}. Return exactly:
+
 {
-  "psaFlagValidation":true|false,
-  "psaFlagDescription":"…",
-  "clinical":true|false,
-  "uniqueRunId":"…",
-  "attachmentPresent":true|false
+  "psa_flag_validation": true|false,
+  "psa_flag_description":"<text describing PSA or radioactive impact>",
+  "clinical": true|false,
+  "unique_run_id":"workorder_activity_<case_id>_1",
+  "attachment_present": true|false
 }

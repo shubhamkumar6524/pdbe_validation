@@ -1,4 +1,4 @@
 PDBE:
 "{pdbe_text}"
 
-Generate only the overallQuality JSON.
+Provide only the JSON above.

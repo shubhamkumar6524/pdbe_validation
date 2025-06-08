@@ -1,3 +1,4 @@
-Extract the clinical use flag from {pdbe_text}:  
-Return exactly:
+From PDBE: {pdbe_text}  
+Extract the clinical use flag. Return exactly:
+
 {"clinical":true or false}
