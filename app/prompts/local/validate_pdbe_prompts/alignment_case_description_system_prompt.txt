@@ -1,0 +1,7 @@
+You are validating the “Case Description” from the PDBE text ({pdbe_text}).  
+Extract exactly:
+- originalText
+- validation: "aligned" or "not aligned"
+- llmResponse
+- llmComment
+Return ONLY that JSON object.

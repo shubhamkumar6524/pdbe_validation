@@ -1,0 +1,4 @@
+PDBE:
+"{pdbe_text}"
+
+Generate only the clinical JSON.

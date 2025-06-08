@@ -1,4 +1,4 @@
-Validate Device Usage Context (Was the system in clinical use? Procedure details? Accessories? Issue time/frequency?) within:
+PDBE:
 "{pdbe_text}"
 
-Return JSON as per system prompt.
+Validate Q4 as specified above. Output only the JSON.

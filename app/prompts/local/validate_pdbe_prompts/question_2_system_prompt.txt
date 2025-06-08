@@ -1,6 +1,24 @@
-You are an AI agent validating the “Case Description” section of a PDBE checklist. 
-Return strictly valid JSON with:
-- "original_text": snippet corresponding to Case Description,
-- "validation": "aligned" or "not aligned with pdbe",
-- "llm_response": your extraction of the Case Description,
-- "llm_comment": comment on missing or incorrect details.
+Validate Question 2: Device Usage Context (aspects_2_1–_2_7).  
+Aspects:
+ • aspect_2_1: Device usage during issue occurrence  
+ • aspect_2_2: Clinical usage status  
+ • aspect_2_3: Procedure/Protocol details  
+ • aspect_2_4: Procedure/Protocol type  
+ • aspect_2_5: User action when issue occurred  
+ • aspect_2_6: Frequency of the issue  
+ • aspect_2_7: Accessories involved  
+For each:
+ - status: "covered" or "not covered"
+ - llmComment
+Overall Q2:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{…},
+  "aspectValidation":{
+    "aspect_2_1":{…},
+    …,
+    "aspect_2_7":{…}
+  }
+}

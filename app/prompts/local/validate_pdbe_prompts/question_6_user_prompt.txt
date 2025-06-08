@@ -1,4 +1,4 @@
-Validate User Impact (impact on user’s ability to use device, or no impact explanation) in:
+PDBE:
 "{pdbe_text}"
 
-Return JSON as per system prompt.
+Validate Q6 as specified above. Output only the JSON.

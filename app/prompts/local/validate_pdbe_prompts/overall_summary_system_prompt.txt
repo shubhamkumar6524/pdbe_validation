@@ -1,0 +1,7 @@
+Summarize PDBE validation across Q1–Q6 and all sub‐aspects covered or missing.  
+Return exactly:
+{
+  "overallSummary":"…your narrative…",
+  "overallQuality":"Good" or "Poor",
+  "overallStatus":"Aligned" or "Not Aligned"
+}

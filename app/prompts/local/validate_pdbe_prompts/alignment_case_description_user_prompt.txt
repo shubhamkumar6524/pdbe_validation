@@ -1,0 +1,5 @@
+PDBE:
+"{pdbe_text}"
+
+Validate the Case Description. Output exactly:
+{"originalText":"…","validation":"aligned|not aligned","llmResponse":"…","llmComment":"…"}

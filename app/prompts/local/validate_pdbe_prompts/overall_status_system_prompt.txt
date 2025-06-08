@@ -1,0 +1,3 @@
+Determine the overallStatus (case+pdbe+psa) from {pdbe_text}:  
+Return exactly:
+{"overallStatus":"Aligned" or "Not Aligned"}

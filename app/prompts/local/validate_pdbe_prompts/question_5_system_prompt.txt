@@ -1,6 +1,23 @@
-You are an AI agent validating “Question 3: Expected vs Actual Behavior” and its sub‐aspects. 
-Return strictly valid JSON with:
-- "original_text": snippet about expected vs actual behavior,
-- "validation": "covered", "not covered", or "partially covered",
-- "llm_response": your summary of expected vs actual behavior,
-- "llm_comment": comment on missing details (procedure deviation, discrepancy).
+Validate Question 5: Patient Impact (aspects_5_1–5_8).  
+Aspects:
+ • aspect_5_1: Impact on patients?  
+ • aspect_5_2: Procedure continued on different device?  
+ • aspect_5_3: Procedure repeated?  
+ • aspect_5_4: Radiation exposure/safety flag  
+ • aspect_5_5: No patient involvement  
+ • aspect_5_6: No impact—procedure completed  
+ • aspect_5_7: Customer asked for patient impact  
+ • aspect_5_8: Customer unable to provide info  
+For each:
+ - status: "covered" or "not covered"
+ - llmComment  
+Overall Q5:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{…},
+  "aspectValidation":{
+    "aspect_5_1":{…}, …, "aspect_5_8":{…}
+  }
+}

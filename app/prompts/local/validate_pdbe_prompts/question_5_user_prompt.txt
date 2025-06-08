@@ -1,4 +1,4 @@
-Here is the full ServiceMax payload (JSON):
-{input}
+PDBE:
+"{pdbe_text}"
 
-Please answer Aspect 5 accordingly.
+Validate Q5 as specified above. Output only the JSON.

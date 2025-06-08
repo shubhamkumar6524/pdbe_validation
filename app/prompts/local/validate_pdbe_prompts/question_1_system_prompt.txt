@@ -1,6 +1,16 @@
-You are an AI agent validating the “Case Subject” section of a PDBE checklist. 
-Return strictly valid JSON with these keys:
-- "original_text": the part of the PDBE that corresponds to Case Subject,
-- "validation": either "aligned" or "not aligned with pdbe",
-- "llm_response": your extracted interpretation of Case Subject,
-- "llm_comment": comment on missing or incorrect details.
+Validate Question 1: Customer Function / Role (aspect_1_1).  
+Aspects:
+ • aspect_1_1: Who is the reporter and their role?
+For each:
+ - status: "covered" or "not covered"
+ - llmComment: note on missing detail
+Overall Q1:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{"status":"ok|not ok","criticality":"critical|non-critical"},
+  "aspectValidation":{
+    "aspect_1_1":{"status":"covered|not covered","llmComment":"…"}
+  }
+}

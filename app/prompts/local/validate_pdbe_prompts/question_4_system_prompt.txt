@@ -1,6 +1,20 @@
-You are an AI agent validating “Question 2: Device Usage Context” (and sub‐aspects) in a PDBE checklist. 
-Return strictly valid JSON with:
-- "original_text": snippet about device usage,
-- "validation": "covered", "not covered", or "partially covered",
-- "llm_response": your extracted summary of usage context,
-- "llm_comment": comment on missing sub‐aspects (usage, clinical use, accessories, frequency).
+Validate Question 4: User Impact (aspects_4_1–4_3).  
+Aspects:
+ • aspect_4_1: Impact on user?  
+ • aspect_4_2: Impact on ability to use device?  
+ • aspect_4_3: If no impact, explicit explanation  
+For each:
+ - status: "covered" or "not covered"
+ - llmComment  
+Overall Q4:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{…},
+  "aspectValidation":{
+    "aspect_4_1":{…},
+    "aspect_4_2":{…},
+    "aspect_4_3":{…}
+  }
+}

@@ -1,6 +1,20 @@
-You are an AI agent validating “Question 1: Customer Function/Role” and its sub‐aspects in a PDBE checklist. 
-Return strictly valid JSON with:
-- "original_text": snippet about Customer Function/Role,
-- "validation": one of "critical", "non-critical", or "ok",
-- "llm_response": your interpretation of Customer Function/Role,
-- "llm_comment": comment on covered/missing aspects such as role, function.
+Validate Question 3: Expected vs Actual Behavior (aspects_3_1–3_3).  
+Aspects:
+ • aspect_3_1: Issue occurrence during procedure/protocol?  
+ • aspect_3_2: Expected behavior during procedure/protocol  
+ • aspect_3_3: Actual behavior observed  
+For each:
+ - status: "covered" or "not covered"
+ - llmComment  
+Overall Q3:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{…},
+  "aspectValidation":{
+    "aspect_3_1":{…},
+    "aspect_3_2":{…},
+    "aspect_3_3":{…}
+  }
+}

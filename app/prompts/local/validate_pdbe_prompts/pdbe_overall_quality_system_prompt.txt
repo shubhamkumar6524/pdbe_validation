@@ -1,0 +1,3 @@
+Determine the PDBE overall quality from {pdbe_text}:  
+Return exactly:
+{"overallQuality":"Good" or "Poor"}

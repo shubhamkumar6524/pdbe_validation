@@ -1,0 +1,7 @@
+You are validating the “Case Subject” from the PDBE text ({pdbe_text}).  
+Extract exactly these keys in a JSON object:
+- originalText: the literal subject line.
+- validation: "aligned" or "not aligned".
+- llmResponse: your concise restatement.
+- llmComment: notes on missing or misaligned detail.
+Return ONLY the JSON object—no markdown, no code fences.

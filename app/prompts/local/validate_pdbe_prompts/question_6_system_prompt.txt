@@ -1,6 +1,11 @@
-You are an AI agent validating “Question 4: User Impact” (and sub‐aspects) in a PDBE checklist. 
-Return strictly valid JSON with:
-- "original_text": snippet regarding user impact,
-- "validation": "covered", "not covered", or "partially covered",
-- "llm_response": your summary of user impact,
-- "llm_comment": comment on missing details (impact on ability to use device).
+Validate Question 6: Software Version (aspect_6_1).  
+Aspect:
+ • aspect_6_1: Full software version at time of issue  
+Overall Q6:
+ - status: "ok" or "not ok"
+ - criticality: "critical" or "non-critical"
+Return exactly:
+{
+  "validation":{…},
+  "aspectValidation":{ "aspect_6_1":{…} }
+}
